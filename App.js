@@ -2,6 +2,7 @@ import "./index.css";
 import React, { useState } from "react";
 import PopUp from "./PopUp";
 import LoginScreen from "./LoginScreen";
+import NewProj from "./NewProj"
 
 
 
@@ -9,18 +10,13 @@ export default function App() {
 
   const [isShowLogin, setIsShowLogin] = useState(true);
   const [isShowOrig, setIsShowOrig] = useState(false);
+  const [isShowNew, setIsShowNew] = useState(true);
+
+  
     
    
  
-   const handleSubmitClick=() =>{
-    setIsShowOrig(true);
-    setIsShowLogin(true);
     
-       
-    
-   };
-
-  
     
 
   const handleUserClick = () => {
@@ -29,19 +25,27 @@ export default function App() {
     
     
       };
+  
+  const handleProjClick = () => {
+    setIsShowLogin(true);
+    setIsShowOrig(true);
+    setIsShowNew(false)
+        
+        
+          };
 
   
 
   return (
     
      <div className="app">
-      <div className="login-form">
-        <div className="title">Sign In</div>
-      <LoginScreen isShowOrig= {isShowOrig} handleUserClick={handleUserClick} handleSubmitClick = {handleSubmitClick} />
-      <PopUp isShowLogin={isShowLogin} handleSubmitClick = {handleSubmitClick} />
+      
+      <LoginScreen isShowOrig= {isShowOrig} handleUserClick={handleUserClick} handleProjClick = {handleProjClick} />
+      <PopUp isShowLogin={isShowLogin} handleProjClick = {handleProjClick}/>
+      <NewProj isShowNew={isShowNew} handleProjClick = {handleProjClick} />
            
       
-    </div>
+    
     </div>
   );
 }

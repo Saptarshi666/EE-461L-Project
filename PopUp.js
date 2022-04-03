@@ -3,13 +3,13 @@ import './index.css';
 
 
 
-function PopUp({ isShowLogin, handleSubmitClick}) {
+function PopUp({ isShowLogin, handleProjClick}) {
   const [username, setusername] = useState("");
   const [password, setpassword] = useState("");
 
   const handleClick = () => {
     validate()
-    handleSubmitClick();
+    handleProjClick();
             
   };
 
@@ -19,7 +19,7 @@ function validate(){
 
       return (
         <div className={`${isShowLogin ? "active" : ""} show`}>
-            <form onSubmit={handleClick}>
+            <form>
             <div className="input-container">
               <label>New Username </label>
               <input type="text" name="uname" id = "uname" required onChange = {(e) => setusername(e.target.value)} />
@@ -30,8 +30,10 @@ function validate(){
             <input type="password" name="pass" id = "pass" required onChange={(e) => setpassword(e.target.value)}/>
             
           </div>
-            <div className="button-container">
-              <input type="submit" />
+          <div className="button-container">
+          <span onClick={handleClick} className="btn">
+              Submit
+          </span>
             </div>
           </form>      
         </div>

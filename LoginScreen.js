@@ -4,7 +4,7 @@ import './index.css';
 
 
 
-function LoginScreen({ isShowOrig, handleSubmitClick, handleUserClick}) {
+function LoginScreen({ isShowOrig, handleProjClick, handleUserClick}) {
 
   const [username, setusername] = useState("");
   const [password, setpassword] = useState("");
@@ -16,7 +16,7 @@ function LoginScreen({ isShowOrig, handleSubmitClick, handleUserClick}) {
     
     const handleClick = () => {
         validate()
-        handleSubmitClick();
+        handleProjClick();
                 
       };
     
@@ -27,7 +27,8 @@ function LoginScreen({ isShowOrig, handleSubmitClick, handleUserClick}) {
    
     return (
         <div className={`${isShowOrig ? "active" : ""} show`}>
-        <form onSubmit={handleClick}>
+        <form>
+        <label>Sign In </label>
           <div className="input-container">
             <label>Username </label>
             <input type="text" name="uname" id = "uname" required onChange = {(e) => setusername(e.target.value)} />
@@ -39,14 +40,16 @@ function LoginScreen({ isShowOrig, handleSubmitClick, handleUserClick}) {
             
           </div>
           <div className="button-container">
-            <input type="submit"  />
+          <span onClick={handleClick} className="btn">
+              Submit
+          </span>
           </div>
           <div>
           <span onClick={NewUserClick} className="btn">
               New User
           </span>
           </div>
-        </form>      
+          </form>      
       </div>
     );
     
