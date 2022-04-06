@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import PopUp from "./PopUp";
 import LoginScreen from "./LoginScreen";
 import NewProj from "./NewProj"
+import ProjPage from "./ProjPage"
+import ExistingProjects from "./ExistingProjects"
 
 
 
@@ -11,6 +13,7 @@ export default function App() {
   const [isShowLogin, setIsShowLogin] = useState(true);
   const [isShowOrig, setIsShowOrig] = useState(false);
   const [isShowNew, setIsShowNew] = useState(true);
+  const [isShowProjPage, setIsShowProjPage] = useState(true);
 
   
     
@@ -27,26 +30,44 @@ export default function App() {
       };
   
   const handleProjClick = () => {
-    setIsShowLogin(true);
-    setIsShowOrig(true);
-    setIsShowNew(false)
+    setIsShowNew(true);
+    setIsShowProjPage(false);
+    
         
         
           };
+  const handleSubmitClick = () => {
+    setIsShowLogin(true);
+    setIsShowOrig(true);
+    setIsShowNew(false);
+    
+            
+                
+                
+                  };
 
+ 
   
 
   return (
     
-     <div className="app">
+     
+       <div className = "show">
+          <div className = "app">
       
-      <LoginScreen isShowOrig= {isShowOrig} handleUserClick={handleUserClick} handleProjClick = {handleProjClick} />
-      <PopUp isShowLogin={isShowLogin} handleProjClick = {handleProjClick}/>
+      <LoginScreen isShowOrig= {isShowOrig} handleUserClick={handleUserClick} handleSubmitClick = {handleSubmitClick} />
+      <PopUp isShowLogin={isShowLogin} handleSubmitClick = {handleSubmitClick}/>
+      </div>
+      <div className = "app2">
       <NewProj isShowNew={isShowNew} handleProjClick = {handleProjClick} />
-           
+      <ProjPage isShowProjPage={isShowProjPage} />   
+     
+      <ExistingProjects isShowProjPage={isShowProjPage} />  
       
+      </div>
+      </div>
     
-    </div>
+   
   );
 }
 

@@ -2,14 +2,13 @@ import React, { useState, Component } from 'react';
 import './index.css';
 
 
-
-function PopUp({ isShowLogin, handleProjClick}) {
+function PopUp({ isShowLogin, handleSubmitClick}) {
   const [username, setusername] = useState("");
   const [password, setpassword] = useState("");
 
   const handleClick = () => {
     validate()
-    handleProjClick();
+    handleSubmitClick();
             
   };
 

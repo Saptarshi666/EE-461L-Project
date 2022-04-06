@@ -1,6 +1,8 @@
 .app {
   font-family: sans-serif;
-  display: flex;
+  display: fixed;
+  position: fixed;
+  float:left;
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -9,6 +11,33 @@
   font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
   background-color: #f8f9fd;
 }
+
+.app2 {
+  font-family: sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  gap: 20px;
+  height: 100vh;
+  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+  background-color: #f8f9fd;
+}
+
+.List {
+  font-family: sans-serif;
+  display: fixed;
+  position: fixed;
+  float:right;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  height: 100vh;
+  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+  background-color: #f8f9fd;
+}
+
+
 
 input[type="text"],
 input[type="password"] {
@@ -82,7 +111,8 @@ input[type="submit"]:hover {
 }
 
 .show {
-  display:flex;
+  display:block;
+  float: center;
   transition: 800ms;
   opacity: 1;
 }

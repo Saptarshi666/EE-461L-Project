@@ -4,7 +4,7 @@ import './index.css';
 
 
 
-function LoginScreen({ isShowOrig, handleProjClick, handleUserClick}) {
+function LoginScreen({ isShowOrig, handleSubmitClick, handleUserClick}) {
 
   const [username, setusername] = useState("");
   const [password, setpassword] = useState("");
@@ -16,7 +16,7 @@ function LoginScreen({ isShowOrig, handleProjClick, handleUserClick}) {
     
     const handleClick = () => {
         validate()
-        handleProjClick();
+        handleSubmitClick();
                 
       };
     
