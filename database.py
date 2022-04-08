@@ -7,8 +7,10 @@ from sqlite3 import Date
 import pymongo
 from pymongo import MongoClient
 import encrypt
-import datetime
-import pprint
+import os
+import wfdb
+import requests
+from bs4 import BeautifulSoup
 # ajstiles caWpDYgtyCH0Z1JU
 # ^^user   ^^cluster password --> mongodb info
 # change next line if you testing with your own mongodb if you want to be able to see inside
@@ -16,7 +18,7 @@ Client=MongoClient("mongodb+srv://ajstiles:caWpDYgtyCH0Z1JU@cluster0.fvy1j.mongo
 db = Client['Users']
 db = Client['Projects']
 db = Client['HWSets']
-db = Client['Physionet']
+db = Client['PhysioNet']
 username = ''
 auth = FALSE
 
@@ -30,6 +32,7 @@ auth = FALSE
 
 def add_base_hwset(): # (projID ??):
         # probably add this to some sort of initializtion or check to see if sets/database got reset
+        # while adding this also add something to bring in the 5 OG physio datasets
         db = Client['HWSets']
         if db.list_collection_names().__contains__('HW Set1') and db.list_collection_names().__contains__('HW Set2'):
                 return
@@ -74,6 +77,8 @@ def add_custom_hwset(): # (projName,setName, capc, avail, auth): # comments like
 
 def check_out_hw(): # (projID, setName, number):
         # TODO what to do about logging out with sets forever?
+        # any user can check in the checked out hw for a project, and ofc can check out more if available
+        # hw set not like a library book
         setName = input('check out set name- ')
         db = Client['HWSets']
         set = db[setName]
@@ -239,21 +244,122 @@ def log_out():
         global username
         username = ''
 
-add_base_hwset()
+# PhysioNet Citation:
+# Goldberger, A., Amaral, L., Glass, L., Hausdorff, J., Ivanov, P. C., Mark, R., ... & Stanley, H. E. (2000). PhysioBank, PhysioToolkit, and PhysioNet: Components of a new research resource for complex physiologic signals. Circulation [Online]. 101 (23), pp. e215–e220.
+def add_physio_db(pdbAbbrev): # (pdbAbbrev, pdbDesc): 
+        # small sizes are aami-ec13, bpssrat, need 3 more
+        # TODO no duplicates
+        # TODO add descriptions
+        # maybe add counter for number of downloads?
+        dbs = wfdb.get_dbs()
+        # pdbAbbrev = input('enter pdb- ')
+        for i in range(len(dbs)):
+                if dbs[i][0] == pdbAbbrev:
+                        pdbTitle = str(dbs[i][1])
+                        break
+        db = Client['PhysioNet']
+        if db.list_collection_names().__contains__(pdbAbbrev):
+                print('dataset already exsists')
+                return False
+        if not physio_db_exists(pdbAbbrev):
+                print('dataset does not exist')
+                return
+        pdbDesc = "curse you and your lack of uniform formatting physionet"
+        db = Client["PhysioNet"]
+        pdb = db[pdbAbbrev]
+        post = {
+                "Database Title": pdbTitle,
+                "_id": pdbAbbrev,
+                "Description": physio_db_desc(pdbAbbrev),
+                "Webpage": "https://physionet.org/content/" + pdbAbbrev + "/1.0.0/",
+                "Zip Link": physio_db_zip(pdbAbbrev)
+                }
+        post_id = pdb.insert_one(post).inserted_id
+        post_id
+        
+def physio_db_exists(pdbAbbrev):
+        URL = "https://physionet.org/content/" + pdbAbbrev + "/1.0.0/"
+        resp = requests.get(URL)
+        if resp.status_code == 200:
+                return True
+        else:
+                return False
+
+# will have to manually put in the description, author for 5
+# change it to webscrape for the zip url still possible tho
+def physio_db_zip(pdbAbbrev):
+    # ".zip link": "https://physionet.org <+<breaks here>+> /static/published-projects/adfecgdb/abdominal-and-direct-fetal-ecg-database-1.0.0.zip" no spaces ofc
+    URL = "https://physionet.org/content/" + pdbAbbrev + "/1.0.0/"
+    resp = requests.get(URL)
+    if resp.status_code==200:
+        soup = BeautifulSoup(resp.text,'html.parser') 
+        abs_neck = soup.find("h5", text="Access the files")  
+        abs_head = abs_neck.findNext("ul",{"class":""})
+        z = str(abs_head.find_next())
+        zip_ext = z[13:-41]
+        zippy = "https://physionet.org" + zip_ext
+        return zippy
+    else:
+        print('no zip link')
+        return "error"
+
+def physio_db_desc(pdbAbbrev):
+        if pdbAbbrev == 'aami-ec13':
+                desc = "boogers"
+                return desc
+        if pdbAbbrev == 'bpssrat':
+                desc = "rat"
+                return desc
+        return 'no desc'
+
+def request_physio_zip(pdbAbbrev):
+        db = Client["PhysioNet"]
+        pdb = db[pdbAbbrev]
+        if db.list_collection_names().__contains__(pdbAbbrev):
+                zip_link = pdb.find_one({"_id": pdbAbbrev})
+                zip = zip_link["Zip Link"]
+                print(zip)
+                return True
+        else:
+                print('dataset not exists')
+                return False
+
+# below downloads individual files to computer, idk if really needed tho
+# needs to be called in if __name__ == "__main__": function or it will time out and be stuck in loop forever
+def download_physio_db(): # (pdbAbbrev): the abbreviation for the physioDatabase, might have to redo as it downloads not send as zip atm
+        print('wfdb for physionet .dat files and metadata')
+        wfdb.io.get_dbs()
+        wfdb.get_record_list('bpssrat')
+        wfdb.dl_database('bpssrat', r'C:\Users\User\Desktop\bpsrat-DATA', records='all', annotators='all', keep_subdirs=True, overwrite=False)
+
+# add_base_hwset()
 # *********** TESTING WITH INPUTS REMOVE BELOW
-print(db.list_collection_names())
-if not make_user('alberto', 'pass'):
-        check_user_password('alberto', 'pass')
-add_project()
-log_out()
-if not make_user('alberto2', 'pass2'):
-        check_user_password('alberto2', 'pass2')
+# print(db.list_collection_names())
+# if not make_user('alberto', 'pass'):
+        # check_user_password('alberto', 'pass')
+# if __name__ == "__main__":
+#         download_physio_db()
+add_physio_db('aami-ec13')
+add_physio_db('bpssrat')
+add_physio_db('wrongwrongwrong') # meant to fail
+add_physio_db('adfecgdb')
+add_physio_db('aftdb')
+add_physio_db('norwegian-athlete-ecg')
+request_physio_zip('aami-ec13')
+request_physio_zip('bpssrat')
+request_physio_zip('adfecgdb')
+request_physio_zip('aftdb')
+request_physio_zip("norwegian-athlete-ecg")
 # add_project()
-join_project()
+# log_out()
+# if not make_user('alberto2', 'pass2'):
+#         check_user_password('alberto2', 'pass2')
+# add_project()
+# join_project()
 # check_out_hw()
 # check_in_hw()
 # print('make next project ID is delete no spaces')
-delete_project()
+# delete_project()
 # add_custom_hwset()
 log_out()
 # *********** END OF MANUAL TEST DONT REMOVE STUFF PAST HERE
