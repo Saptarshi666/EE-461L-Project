@@ -1,11 +1,11 @@
 import React, { useState, Component } from "react";
-import './index.css';
+import './components.css';
 import { useNavigate } from "react-router-dom";
 
 
 
 
-function ProjPage({ isShowProjPage, handleProjClick}) {
+function ProjPage() {
 
  
  
@@ -30,7 +30,7 @@ function ProjPage({ isShowProjPage, handleProjClick}) {
     return (
      
        
-      <div className={`${isShowProjPage ? "active" : ""} show`}>
+      <div className='app2'>
           <div>
           <span onClick={NewProjectClick} className="btn">
               New Project

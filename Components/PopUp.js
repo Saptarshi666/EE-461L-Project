@@ -1,14 +1,14 @@
 import React, { useState, Component } from 'react';
-import './index.css';
+import './components.css';
 
 
-function PopUp({ isShowLogin, handleSubmitClick}) {
+export default function PopUp() {
   const [username, setusername] = useState("");
   const [password, setpassword] = useState("");
 
   const handleClick = () => {
     validate()
-    handleSubmitClick();
+   
             
   };
 
@@ -17,7 +17,7 @@ function validate(){
 };
 
       return (
-        <div className={`${isShowLogin ? "active" : ""} show`}>
+        <div className= 'app'>
             <form>
             <div className="input-container">
               <label>New Username </label>
@@ -39,7 +39,7 @@ function validate(){
       );
 };
 
-export default PopUp;
+
 
   
   
