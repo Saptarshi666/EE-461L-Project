@@ -1,52 +1,22 @@
-import "./index.css";
-import React, { useState } from "react";
-import PopUp from "./PopUp";
-import LoginScreen from "./LoginScreen";
-import NewProj from "./NewProj"
+import React from 'react';
+import './index';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LoginScreen from './LoginScreen';
+import NewProj from './NewProj';
+import PopUp from './PopUp';
 
-
-
-export default function App() {
-
-  const [isShowLogin, setIsShowLogin] = useState(true);
-  const [isShowOrig, setIsShowOrig] = useState(false);
-  const [isShowNew, setIsShowNew] = useState(true);
-
-  
-    
-   
- 
-    
-    
-
-  const handleUserClick = () => {
-    setIsShowLogin(false);
-    setIsShowOrig(true);
-    
-    
-      };
-  
-  const handleProjClick = () => {
-    setIsShowLogin(true);
-    setIsShowOrig(true);
-    setIsShowNew(false)
-        
-        
-          };
-
-  
-
+function App() {
   return (
-    
-     <div className="app">
-      
-      <LoginScreen isShowOrig= {isShowOrig} handleUserClick={handleUserClick} handleProjClick = {handleProjClick} />
-      <PopUp isShowLogin={isShowLogin} handleProjClick = {handleProjClick}/>
-      <NewProj isShowNew={isShowNew} handleProjClick = {handleProjClick} />
-           
-      
-    
-    </div>
+    <>
+      <Router>
+        <Routes>
+         <Route path='/' exact element={<LoginScreen />} /> 
+         <Route path='/NewProj' element={<NewProj />} />
+         <Route path='/PopUp' element={<PopUp />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
 
+export default App;

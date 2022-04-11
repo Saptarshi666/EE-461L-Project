@@ -1,5 +1,6 @@
 import React, { useState, Component } from "react";
 import './index.css';
+import { Link } from "react-router-dom";
 
 
 
@@ -7,7 +8,7 @@ import './index.css';
 function LoginScreen({ isShowOrig, handleProjClick, handleUserClick}) {
 
   const [username, setusername] = useState("");
-  const [password, setpassword] = useState("");
+  const [password, setpassword] = useState(""); 
       
       
     const NewUserClick = () => {
@@ -15,9 +16,14 @@ function LoginScreen({ isShowOrig, handleProjClick, handleUserClick}) {
       };
     
     const handleClick = () => {
-        validate()
+        validate();
+        showAlert();
         handleProjClick();
                 
+      };
+
+      const showAlert = () => {
+        alert("I'm an alert");
       };
     
     function validate(){
@@ -46,7 +52,9 @@ function LoginScreen({ isShowOrig, handleProjClick, handleUserClick}) {
           </div>
           <div>
           <span onClick={NewUserClick} className="btn">
-              New User
+              <Link to="/NewProj" onClick={handleClick}>
+                New Project
+              </Link>
           </span>
           </div>
           </form>      
