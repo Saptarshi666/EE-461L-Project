@@ -1,14 +1,21 @@
 import React, { useState, Component } from 'react';
 import './components.css';
+import { Routes,
+  Route,
+  useNavigate,
+  useLocation,
+  Navigate,Outlet, Link } from "react-router-dom";
+
 
 
 export default function PopUp() {
+  const navigate = useNavigate()
   const [username, setusername] = useState("");
   const [password, setpassword] = useState("");
 
   const handleClick = () => {
     validate()
-   
+    navigate("/projectpage")
             
   };
 

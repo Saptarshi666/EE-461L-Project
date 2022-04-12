@@ -32,9 +32,8 @@ function ProjPage() {
        
       <div className='app2'>
           <div>
-          <span onClick={NewProjectClick} className="btn">
-              New Project
-          </span>
+          <form>
+          <label>Create New Project </label>
           <div className="input-container">
             <label>Project Name </label>
             <input type="text" name="pname" id = "pname" required  />
@@ -55,10 +54,26 @@ function ProjPage() {
               Create New Project
           </span>
           </div>
+          </form>
           </div>
          
+         <div></div>
          
-              
+         <div >
+           <form>
+         <label>Open Existing Project </label>
+          <div className="input-container">
+            <label>ProjectID </label>
+            <input type="text" name="epname" id = "epname" required />
+            
+          </div>
+          <div className="button-container">
+          <span onClick={OpenExistingClick} className="btn">
+              Open Existing Project
+          </span>
+          </div>
+          </form>
+          </div>    
       </div>
      
     );
