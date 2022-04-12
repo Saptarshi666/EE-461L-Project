@@ -1,39 +1,34 @@
 import React, { useState, Component } from "react";
 import './index.css';
+import { useNavigate, Link } from "react-router-dom";
 
 
 
 
 function NewProj({ isShowNew, handleProjClick}) {
-
-       
       
     function NewProjectClick(){
+      handleProjClick()
+      const navigate = useNavigate()
+      let path = '/ProjPage'; 
+      navigate(path);
 
-      handleProjClick();
-
-    }
     
-    function OpenExistingClick(){
-
-      handleProjClick();
-
     }
-     
-      
-   
+
     return (
+     
         <div className={`${isShowNew ? "active" : ""} show`}>
           <div>
+            
           <span onClick={NewProjectClick} className="btn">
-              New Project
+              Go To Project Page
           </span>
-          <span onClick={OpenExistingClick} className="btn">
-              Open Existing Project
-          </span>
+          
           </div>
               
       </div>
+     
     );
     
 }

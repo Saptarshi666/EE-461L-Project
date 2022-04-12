@@ -1,15 +1,21 @@
 import React, { useState, Component } from 'react';
-import './index.css';
+import './components.css';
+import { Routes,
+  Route,
+  useNavigate,
+  useLocation,
+  Navigate,Outlet, Link } from "react-router-dom";
 
 
 
-function PopUp({ isShowLogin, handleProjClick}) {
+export default function PopUp() {
+  const navigate = useNavigate()
   const [username, setusername] = useState("");
   const [password, setpassword] = useState("");
 
   const handleClick = () => {
     validate()
-    handleProjClick();
+    navigate("/projectpage")
             
   };
 
@@ -18,7 +24,7 @@ function validate(){
 };
 
       return (
-        <div className={`${isShowLogin ? "active" : ""} show`}>
+        <div className= 'app'>
             <form>
             <div className="input-container">
               <label>New Username </label>
@@ -40,7 +46,7 @@ function validate(){
       );
 };
 
-export default PopUp;
+
 
   
   

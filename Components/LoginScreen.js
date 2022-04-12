@@ -1,23 +1,26 @@
-import React, { useState, Component } from "react";
-import './index.css';
+import React, { useState } from "react";
+import './components.css';
+import { Routes,
+  Route,
+  useNavigate,
+  useLocation,
+  Navigate,Outlet, Link } from "react-router-dom";
 
 
 
+export default function LoginScreen() {
 
-function LoginScreen({ isShowOrig, handleProjClick, handleUserClick}) {
-
+ 
+  const navigate = useNavigate();
   const [username, setusername] = useState("");
   const [password, setpassword] = useState("");
       
-      
-    const NewUserClick = () => {
-        handleUserClick();
-      };
-    
+  
+   
     const handleClick = () => {
         validate()
-        handleProjClick();
-                
+        navigate("/projectpage")
+             
       };
     
     function validate(){
@@ -26,7 +29,7 @@ function LoginScreen({ isShowOrig, handleProjClick, handleUserClick}) {
     
    
     return (
-        <div className={`${isShowOrig ? "active" : ""} show`}>
+        <div className= 'app'>
         <form>
         <label>Sign In </label>
           <div className="input-container">
@@ -44,15 +47,11 @@ function LoginScreen({ isShowOrig, handleProjClick, handleUserClick}) {
               Submit
           </span>
           </div>
-          <div>
-          <span onClick={NewUserClick} className="btn">
-              New User
-          </span>
-          </div>
+          
           </form>      
       </div>
     );
     
 }
   
-  export default LoginScreen;
+  
