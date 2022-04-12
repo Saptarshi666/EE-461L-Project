@@ -11,6 +11,7 @@ import os
 import wfdb
 import requests
 from bs4 import BeautifulSoup
+from cryptography.fernet import Fernet
 # ajstiles caWpDYgtyCH0Z1JU
 # ^^user   ^^cluster password --> mongodb info
 # change next line if you testing with your own mongodb if you want to be able to see inside
@@ -20,8 +21,10 @@ db = Client['Projects']
 db = Client['HWSets']
 db = Client['PhysioNet']
 username = ''
+Password = ''
 auth = FALSE
-
+app = Flask(__name__, static_folder='./Frontend/build', static_url_path='/')
+fernet = Fernet.generate_key()
 # ****************** YOU MUST REMOVE INPUTS ***************8888
 # ****************** YOU MUST REMOVE INPUTS ***************8888
 # ****************** YOU MUST REMOVE INPUTS ***************8888
@@ -200,8 +203,8 @@ def delete_project(): # (projID):
                 user = db[element]
                 user.find_one_and_delete({"_id": projID})
         return True
-
-def make_user(user, password):
+@app.route('/newuser/<user>/<passw>')
+def make_user(user,passw):
         # TODO remove INPUTS when receiving data from front end
         # check for strength of pw? maybe for the future
         # add encryption
@@ -210,10 +213,12 @@ def make_user(user, password):
                 print('username unavailable')
                 return False
         global username
-        username = user
+        username = fernet.encrypt(user)
+        global Password
+        Password = fernet.encrypt(passw)
         post = {
                 "Username": username,
-                "Password": password,
+                "Password": Password,
                 "Funds": 100
                 }
         user = db[user]
@@ -224,14 +229,17 @@ def make_user(user, password):
 
 def add_Funds():
         print('are we doing funds?')
-
-def check_user_password(user, password):
+@app.route('/login/<user>/<passw>')
+def check_user_password(user, passw):
         # TODO add reverse encryption
         # add limit on attempts? attempts per user or machine?
         global username
+        username = fernet.encrypt(username)
+        global Password
+        Password = fernet.encrypt(passw)
         db = Client['Users']
         userCheck = db[user]
-        if not userCheck.find_one({"Username": user, "Password": password}):
+        if not userCheck.find_one({"Username": user, "Password": passw}):
                 print('login credentials incorrect')
                 return False
         else:
@@ -332,6 +340,9 @@ def download_physio_db(): # (pdbAbbrev): the abbreviation for the physioDatabase
         wfdb.get_record_list('bpssrat')
         wfdb.dl_database('bpssrat', r'C:\Users\User\Desktop\bpsrat-DATA', records='all', annotators='all', keep_subdirs=True, overwrite=False)
 
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
 # add_base_hwset()
 # *********** TESTING WITH INPUTS REMOVE BELOW
 # print(db.list_collection_names())
@@ -365,7 +376,8 @@ log_out()
 # *********** END OF MANUAL TEST DONT REMOVE STUFF PAST HERE
 
 Client.close()
-
+if __name__ == '__main__':
+    app.run()
 # TODO
 # encrypt password (HW1) cypher
 # get info from ui 
