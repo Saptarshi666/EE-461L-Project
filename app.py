@@ -204,6 +204,7 @@ def delete_project(): # (projID):
                 user = db[element]
                 user.find_one_and_delete({"_id": projID})
         return True
+
 @app.route('/newuser/<user>/<passw>')
 def make_user(user,passw):
         # TODO remove INPUTS when receiving data from front end
@@ -230,6 +231,7 @@ def make_user(user,passw):
 
 def add_Funds():
         print('are we doing funds?')
+
 @app.route('/login/<user>/<passw>')
 def check_user_password(user, passw):
         # TODO add reverse encryption
@@ -314,7 +316,7 @@ def physio_db_zip(pdbAbbrev):
 
 def physio_db_desc(pdbAbbrev):
         if pdbAbbrev == 'aami-ec13':
-                desc = "boogers"
+                desc = "desc"
                 return desc
         if pdbAbbrev == 'bpssrat':
                 desc = "rat"
