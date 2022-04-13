@@ -2,6 +2,7 @@ from asyncio.windows_events import NULL
 # from crypt import methods
 from datetime import date
 from http import client
+import json
 from operator import contains
 from pickle import FALSE
 from sqlite3 import Date
@@ -31,6 +32,7 @@ Password = ''
 auth = FALSE
 app = Flask(__name__, static_folder='./frontend/build', static_url_path="")
 CORS(app)
+# fernet = Fernet.generate_key()
 fernet = b'dGbn-lNuJMHD7BAHzxzq-6Ji158xIxMHQlGrFXit7H0='
 f = Fernet(fernet)
 # ****************** YOU MUST REMOVE INPUTS ***************8888
@@ -136,6 +138,7 @@ def check_in_hw(): # (setName, number):
         set = db[setName]
         set.update_one({"HWSet Name": setName}, {'$inc':{'Availability': number}})
 
+@app.route("/NewProj", methods=["GET", "POST"])
 def add_project(): # (,projName, desc, auth):
         # TODO remove inputs
         # maybe make a method to pull name from project db based on if user has the corresponding projID attatched to their acct
@@ -233,8 +236,7 @@ def make_user():
         print(token2)
         post = {
                 "Username": token,
-                "Password": token2,
-                "Funds": 100
+                "Password": token2
                 }
         user = db[username]
         post_id = user.insert_one(post).inserted_id
@@ -255,15 +257,27 @@ def check_user_password():
         print(params)
         username, password = params['username'].strip(), params['password'].strip()
         print(type(username))
-        token = f.encrypt(username.encode())
-        print(token)
-        token2 = f.encrypt(password.encode())
-        print(token2)
         db = Client['Users']
-        userCheck = db[username]
-        if not userCheck.find_one({"Username": token, "Password": token2}):
-                print('login credentials incorrect')
-                return jsonify(result = 'False')
+        user = db[username]
+        if not db.list_collection_names().__contains__(username):
+                print("no such user exists")
+                return jsonify(result = "True")
+        enc_user = user.find_one()
+        print("enc_user: ")
+        print(enc_user)
+        enc_username = enc_user["Username"]
+        print(enc_username)
+        dec_username = f.decrypt(enc_username).decode()
+        print(dec_username)
+        print(username)
+        enc_password = enc_user["Password"]
+        print(enc_password)
+        dec_password = f.decrypt(enc_password).decode()
+        print(dec_password)
+        print(password)
+        if username != dec_username or password != dec_password:
+                print("login credentials incorrect")
+                return jsonify(result = "True")
         else:
                 print('Welcome ' + username + ' !')
         return jsonify(result = "True")
