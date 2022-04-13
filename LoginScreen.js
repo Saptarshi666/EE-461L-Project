@@ -1,30 +1,34 @@
-import React, { useState, Component } from "react";
-import './index.css';
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import './components.css';
+import { Routes,
+  Route,
+  useNavigate,
+  useLocation,
+  Navigate,Outlet, Link } from "react-router-dom";
 
 
 
-
-function LoginScreen({ isShowOrig, handleProjClick, handleUserClick}) {
-
+export default function LoginScreen() {
+  const navigate = useNavigate()
   const [username, setusername] = useState("");
-  const [password, setpassword] = useState(""); 
-      
-      
-    const NewUserClick = () => {
-        handleUserClick();
-      };
-    
-    const handleClick = () => {
-        validate();
-        showAlert();
-        handleProjClick();
-                
-      };
-
-      const showAlert = () => {
-        alert("I'm an alert");
-      };
+  const [password, setpassword] = useState("");
+  const [result, setresult] = useState("");
+   
+  const handleClick = () => {
+    validate()
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username , password: password})
+    };
+    fetch("/login", requestOptions)
+    .then(response => response.json())
+    .then(data => this.setState(data.result));
+    // this.setState({email: val.currentTarget.value})
+    console.log(result)
+    navigate("/projectpage")
+            
+  };
     
     function validate(){
 
@@ -32,17 +36,16 @@ function LoginScreen({ isShowOrig, handleProjClick, handleUserClick}) {
     
    
     return (
-        <div className={`${isShowOrig ? "active" : ""} show`}>
+        <div className= 'app'>
         <form>
         <label>Sign In </label>
           <div className="input-container">
             <label>Username </label>
-            <input type="text" name="uname" id = "uname" required onChange = {(e) => setusername(e.target.value)} />
-            
+            <input type="text" name="uname" value={username} id = "uname" required onChange = {(e) => setusername(e.target.value)} />
           </div>
           <div className="input-container">
             <label>Password </label>
-            <input type="password" name="pass" id = "pass" required onChange={(e) => setpassword(e.target.value)}/>
+            <input type="password" name="pass" value={password} id = "pass" required onChange={(e) => setpassword(e.target.value)}/>
             
           </div>
           <div className="button-container">
@@ -50,17 +53,11 @@ function LoginScreen({ isShowOrig, handleProjClick, handleUserClick}) {
               Submit
           </span>
           </div>
-          <div>
-          <span onClick={NewUserClick} className="btn">
-              <Link to="/NewProj" onClick={handleClick}>
-                New Project
-              </Link>
-          </span>
-          </div>
+          
           </form>      
       </div>
     );
     
 }
   
-  export default LoginScreen;
+  

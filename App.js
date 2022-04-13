@@ -1,22 +1,28 @@
-import React from 'react';
-import './index';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LoginScreen from './LoginScreen';
-import NewProj from './NewProj';
-import PopUp from './PopUp';
+import { Routes,
+  Route,
+  useNavigate,
+  useLocation,
+  Navigate,Outlet, Link } from "react-router-dom";
 
-function App() {
+export default function App() {
+  const navigate = useNavigate();
   return (
-    <>
-      <Router>
-        <Routes>
-         <Route path='/' exact element={<LoginScreen />} /> 
-         <Route path='/NewProj' element={<NewProj />} />
-         <Route path='/PopUp' element={<PopUp />} />
-        </Routes>
-      </Router>
-    </>
+    <div className = 'app'>
+      <div className="button-container">
+          <span onClick={() => navigate("/login")} className="btn">
+              Login
+          </span>
+          <span onClick={() => navigate("/newuser")} className="btn">
+              New User
+          </span>
+          </div>
+
+
+    
+     
+      
+      <Outlet />
+    </div>
   );
 }
 
-export default App;
