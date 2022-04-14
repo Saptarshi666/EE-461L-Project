@@ -5,10 +5,11 @@ import {
   Route,
 } from "react-router-dom";
 import App from "./App";
+import HWManagement from "./Components/HWManagement";
 import LoginScreen from "./Components/LoginScreen";
 import PopUp from "./Components/PopUp";
 import ProjPage from "./Components/ProjPage";
-import HWManagement from "./Components/HWManagement";
+import ProjDetails from "./Components/ProjDetails";
 
 const rootElement = document.getElementById("root");
 render(
@@ -18,7 +19,9 @@ render(
         <Route path="login" element={<LoginScreen />} />
         <Route path="projectpage" element={<ProjPage />} />
         <Route path="newuser" element={<PopUp />} />
-        <Route path="HWManagement" element={<HWManagement />} />
+        <Route path="hwManagement" element={<HWManagement />} />
+        <Route path="projdetails" element={<ProjDetails/>} />
+        <Route path="logoff" element={<App/>} />
       </Route>
     </Routes>
   </BrowserRouter>,
