@@ -28,6 +28,7 @@ db = Client['Projects']
 db = Client['HWSets']
 db = Client['PhysioNet']
 current_user = ''
+project_id = ''
 auth = FALSE
 app = Flask(__name__, static_folder='./frontend/build', static_url_path="")
 CORS(app)
@@ -46,21 +47,21 @@ def add_base_hwset(): # (projID ??):
         # probably add this to some sort of initializtion or check to see if sets/database got reset
         # while adding this also add something to bring in the 5 OG physio datasets
         db = Client['HWSets']
-        if db.list_collection_names().__contains__('HW Set1') and db.list_collection_names().__contains__('HW Set2'):
+        if db.list_collection_names().__contains__('HWSet1') and db.list_collection_names().__contains__('HWSet2'):
                 return
-        set = db['HW Set1']
+        set = db['HWSet1']
         post = {
-                "HWSet Name": "HW Set1",
+                "HWSet Name": "HWSet1",
                 "Capacity": 100,
                 "Availability": 100
                 }
         post_id = set.insert_one(post).inserted_id
         post_id
-        set = db['HW Set2']
+        set = db['HWSet2']
         post = {
-                "HWSet Name": "HW Set2",
-                "Capacity": 150,
-                "Availability": 150
+                "HWSet Name": "HWSet2",
+                "Capacity": 100,
+                "Availability": 100
                 }
         post_id = set.insert_one(post).inserted_id
         post_id
@@ -88,17 +89,35 @@ def add_custom_hwset(): # (projName,setName, capc, avail, auth): # comments like
         post_id
 
 @app.route("/HWManagement", methods=["GET", "POST"])
+def get_availability():
+        params = request.get_json()
+        print(params)
+        setName = params['setName']
+        print(type(setName))
+        print(setName)
+        db = Client['HWSets']
+        set = db[setName]
+        avail_temp = set.find_one({"HWSet Name": setName}, {"_id": 0, "Availability": 1})
+        avail = avail_temp["Availability"]
+        print(avail)
+        return jsonify({'result' : avail})
+
+@app.route("/HWManagement1", methods=["GET", "POST"])
 def check_out_hw(): # (projID, setName, number):
         params = request.get_json()
         print(params)
-        setName, number, projID = params['HWSet Name'].strip(), params['Availability'].strip(), params['projID'].strip()
+        projID, amount, setName = params['projID'].strip(), params['amount'].strip(), params['setName'].strip()
         print(type(setName))
+        amount = int(amount)
+        print(type(amount))
         # TODO what to do about logging out with sets forever?
         # any user can check in the checked out hw for a project, and ofc can check out more if available
         # hw set not like a library book
         db = Client['HWSets']
         set = db[setName]
-        if not set.find_one({"HWSet Name": setName}):
+        print(db.list_collection_names())
+        print(setName)
+        if not db.list_collection_names().__contains__(setName):
                 print('hwset not exists')
                 return jsonify(result = "False")
         avail_temp = set.find_one({"HWSet Name": setName}, {"_id": 0, "Availability": 1})
@@ -106,36 +125,36 @@ def check_out_hw(): # (projID, setName, number):
         if avail == 0:
                 print('no sets currently available')
                 return jsonify(result = "False")
-        if number > avail:
+        if amount > avail:
                 print('not enough available to match your request')
-                number = avail
-        set.update_one({"HWSet Name": setName}, {'$inc':{'Availability': -number}})
+                amount = avail
+        set.update_one({"HWSet Name": setName}, {'$inc':{'Availability': -amount}})
+
         db = Client['Projects']
         proj = db[projID]
-        if not proj.find_one({"HWSet Name": setName}):
-                proj.insert_one({"HWSet Name": setName, "Current Out": number})
-                return jsonify(result = "True")
-        else:
-                proj.find_one_and_update({"HWSet Name": setName}, {"$inc":{"Current Out": number}})
-                return jsonify(result = "True")
+        proj.find_one_and_update({"_id": projID}, {"$inc":{setName: amount}})
+        return jsonify(result = "True")
 
-@app.route("/HWManagement", methods=["GET", "POST"])
+@app.route("/HWManagement2", methods=["GET", "POST"])
 def check_in_hw(): # (setName, number):
         params = request.get_json()
         print(params)
-        setName, number, projID = params['HWSet Name'].strip(), params['Availability'].strip(), params['projID'].strip()
+        projID, amount, setName = params['projID'].strip(), params['amount'].strip(), params['setName'].strip()
         print(type(setName))
+        amount=int(amount)
         db = Client['Projects']
         proj = db[projID]
-        if not proj.find_one({"HWSet Name": setName}):
-                print('hwset not checked out')
-                return jsonify(result = "False")
-        out_temp = proj.find_one({"HWSet Name": setName}, {"_id": 0, "Current Out": 1})
-        current_Out = out_temp["Current Out"]
-        if number > current_Out:
+
+        
+        chkout = proj.find_one({"projID": projID}, {"_id": 0, setName: 1})
+        chkout = chkout[setName]
+        print(chkout)
+        print(type(chkout))
+        if amount > chkout:
                 print('this is more than you have checked out, try again')
                 return jsonify(result = "False")
-        proj.update_one({"HWSet Name": setName}, {'$inc':{'Current Out': -number}})
+
+        proj.update_one({"HWSet Name": setName}, {'$inc':{'Current Out': -amount}})
         out_temp = proj.find_one({"HWSet Name": setName}, {"_id": 0, "Current Out": 1})
         current_Out = out_temp["Current Out"]
         if current_Out == 0:
@@ -143,7 +162,7 @@ def check_in_hw(): # (setName, number):
                 proj.find_one_and_delete({"HWSet Name": setName})
         db = Client['HWSets']
         set = db[setName]
-        set.update_one({"HWSet Name": setName}, {'$inc':{'Availability': number}})
+        set.update_one({"HWSet Name": setName}, {'$inc':{'Availability': amount}})
         return jsonify(result = "True")
 
 # *********** for checking how global current_user works *******************************8
@@ -151,15 +170,17 @@ def check_in_hw(): # (setName, number):
 def sayHi():
         return 'Hello there '+ current_user # jsonify(result = "True")
 
-@app.route("/NewProj", methods=["GET", "POST"])
+@app.route("/projectpage", methods=["GET", "POST"])
 def add_project(): # (,projName, desc, auth):
         # TODO remove inputs
         # maybe make a method to pull name from project db based on if user has the corresponding projID attatched to their acct
         # so that it can always be displayed
         # either this or, as i did in delete_project(), simply add name to each projDoc in its members and update name, desc if its ever changed etc.
+        global project_id
+        print('add project')
         params = request.get_json()
         print(params)
-        projName, projDesc, projID, funds = params['projName'].strip(), params['projDesc'].strip(), params['projID'].strip(), params['funds'].strip()
+        projName, projDesc, projID = params['projName'].strip(), params['projDesc'].strip(), params['projID'].strip()
         print(type(projName))
         # change below so that unique projects names only apply to individual users. is it even necessary if differing ID's and Descs? prob not
         # db = Client['Users']
@@ -169,45 +190,44 @@ def add_project(): # (,projName, desc, auth):
         #         return jsonify(result = "False")
         db = Client['Projects']
         project = db[projName]
-        if project.find_one({"Project ID": projID}):
+        if db.list_collection_names().__contains__(projID):
                 print('project already exists')
                 return jsonify(result = "False")
         post = {
                 "Project Name": projName,
                 "Description": projDesc,
                 "_id": projID,
-                "Funds": funds,
-                "Members": [current_user]
+                "HWSet1": 0,
+                "HWSet2": 0
                 }
         # consider removing the user push, instead only pushing project ID
+        project_id = projID
         project = db[projID]
         post_id = project.insert_one(post).inserted_id
         post_id
-        db = Client['Users']
-        user = db[current_user]
-        user.insert_one({"_id": projID})
+        # db = Client['Users']
+        # user = db[current_user]
+        # user.insert_one({"_id": projID})
         return jsonify(result = "True")
 
-@app.route('/ExistingProject/<user>', methods=["GET", "POST"])
+@app.route('/projectpage1', methods=["GET", "POST"])
 def join_project(): # (projID):
+        global project_id
         params = request.get_json()
         print(params)
         projID = params['projID'].strip()
         print(type(projID))
-        db = Client['Users']
-        user = db[current_user]
-        if user.find_one({"_id": projID}):
-                print('project already joined')
-                return jsonify(result = "False")
+
         db = Client['Projects']
-        project = db[projID]
-        if not project.find_one({"Project ID": projID}):
+        if not db.list_collection_names().__contains__(projID):
                 print('project not exists')
                 return jsonify(result = "False")
-        project.find_one_and_update({"Project ID": projID}, {"$addToSet": {"Members": current_user}})
-        db = Client['Users']
-        user = db[current_user]
-        user.insert_one({"_id": projID})
+        project_id = projID
+        print(project_id)
+        # project.find_one_and_update({"Project ID": projID}, {"$addToSet": {"Members": current_user}})
+        # db = Client['Users']
+        # user = db[current_user]
+        # user.insert_one({"_id": projID})
         return jsonify(result = "True")
 
 def edit_project(): #(projID):
@@ -239,23 +259,18 @@ def delete_project(): # (projID):
 
 @app.route('/newuser', methods=['GET', 'POST'])
 def make_user():
-        print('make user')
         # TODO remove INPUTS when receiving data from front end
         # check for strength of pw? maybe for the future
         # add encryption
         params = request.get_json()
-        print(params)
         username, password = params['username'].strip(), params['password'].strip()
-        print(type(username))
 
         db = Client['Users']
         if db.list_collection_names().__contains__(username):
                 print('username unavailable')
                 return jsonify(result = 'False')
         token = f.encrypt(username.encode())
-        print(token)
         token2 = f.encrypt(password.encode())
-        print(token2)
         post = {
                 "Username": token,
                 "Password": token2
@@ -270,32 +285,20 @@ def make_user():
 
 @app.route('/login', methods=["GET", "POST"])
 def check_user_password():
-        print('check user')
         # TODO add reverse encryption
         # add limit on attempts? attempts per user or machine?
-        print(fernet)
         params = request.get_json()
-        print(params)
         username, password = params['username'].strip(), params['password'].strip()
-        print(type(username))
         db = Client['Users']
         user = db[username]
         if not db.list_collection_names().__contains__(username):
                 print("no such user exists")
                 return jsonify(result = "True")
         enc_user = user.find_one()
-        print("enc_user: ")
-        print(enc_user)
         enc_username = enc_user["Username"]
-        print(enc_username)
         dec_username = f.decrypt(enc_username).decode()
-        print(dec_username)
-        print(username)
         enc_password = enc_user["Password"]
-        print(enc_password)
         dec_password = f.decrypt(enc_password).decode()
-        print(dec_password)
-        print(password)
         if username != dec_username or password != dec_password:
                 print("login credentials incorrect")
                 return jsonify(result = "True")
@@ -303,12 +306,14 @@ def check_user_password():
                 print('Welcome ' + username + ' !')
                 global current_user
                 current_user = username
-        return jsonify(result = "True")
+        return jsonify({"result": username})
 
 def log_out():
         # add tracker of checkouts to mass checkin upon logout
         global current_user
+        global Client
         current_user = ''
+        Client.close()
 
 # PhysioNet Citation:
 # Goldberger, A., Amaral, L., Glass, L., Hausdorff, J., Ivanov, P. C., Mark, R., ... & Stanley, H. E. (2000). PhysioBank, PhysioToolkit, and PhysioNet: Components of a new research resource for complex physiologic signals. Circulation [Online]. 101 (23), pp. e215–e220.
@@ -334,6 +339,7 @@ def add_physio_db(pdbAbbrev): # (pdbAbbrev, pdbDesc):
         pdbDesc = "curse you and your lack of uniform formatting physionet"
         db = Client["PhysioNet"]
         pdb = db[pdbAbbrev]
+        # file sizwdztw creatwd, channels
         post = {
                 "Database Title": pdbTitle,
                 "_id": pdbAbbrev,
