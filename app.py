@@ -7,6 +7,7 @@ from operator import contains
 from pickle import FALSE
 from sqlite3 import Date
 from unittest import result
+from matplotlib.pyplot import title
 from numpy import printoptions
 import pymongo
 from pymongo import MongoClient
@@ -372,7 +373,9 @@ def physio_db_zip(pdbAbbrev):
         abs_neck = soup.find("h5", text="Access the files")  
         abs_head = abs_neck.findNext("ul",{"class":""})
         z = str(abs_head.find_next())
-        zip_ext = z[13:-41]
+        zip_ext = z.split('"')[1::2]
+        zip_ext = zip_ext[0]
+        print(zip_ext)
         zippy = "https://physionet.org" + zip_ext
         print(zippy)
         return zippy
@@ -390,20 +393,23 @@ def physio_db_desc(pdbAbbrev):
         return 'no desc'
 
 
-@app.route('/zipfile')
+@app.route('/zipfile', methods=["GET", "POST"])
 def request_physio_zip():
-        print(fernet)
+        print('getzip')
         params = request.get_json()
         print(params)
         pdbAbbrev = params['_id'].strip()
         print(type(pdbAbbrev))
+        print(pdbAbbrev)
         db = Client["PhysioNet"]
         pdb = db[pdbAbbrev]
         if db.list_collection_names().__contains__(pdbAbbrev):
                 zip_link = pdb.find_one({"_id": pdbAbbrev})
                 zip = zip_link["Zip Link"]
+                title = zip_link["Database Title"]
+                desc = zip_link["Description"]
                 print(zip)
-                return jsonify(result = "True")
+                return jsonify(result = zip, title = title, desc = desc)
         else:
                 print('dataset not exists')
                 return jsonify(result = "False")
