@@ -113,18 +113,19 @@ def check_out_hw(): # (projID, setName, number):
         # TODO what to do about logging out with sets forever?
         # any user can check in the checked out hw for a project, and ofc can check out more if available
         # hw set not like a library book
+        # change returns to be availability
         db = Client['HWSets']
         set = db[setName]
         print(db.list_collection_names())
         print(setName)
         if not db.list_collection_names().__contains__(setName):
                 print('hwset not exists')
-                return jsonify(result = "False")
+                return jsonify(noseterror = "False")
         avail_temp = set.find_one({"HWSet Name": setName}, {"_id": 0, "Availability": 1})
         avail = avail_temp["Availability"]
         if avail == 0:
                 print('no sets currently available')
-                return jsonify(result = "False")
+                return jsonify(unavail = "False")
         if amount > avail:
                 print('not enough available to match your request')
                 amount = avail
@@ -133,10 +134,14 @@ def check_out_hw(): # (projID, setName, number):
         db = Client['Projects']
         proj = db[projID]
         proj.find_one_and_update({"_id": projID}, {"$inc":{setName: amount}})
-        return jsonify(result = "True")
+        avail_temp = set.find_one({"HWSet Name": setName}, {"_id": 0, "Availability": 1})
+        avail = avail_temp["Availability"]
+        return jsonify(result = avail)
 
 @app.route("/HWManagement2", methods=["GET", "POST"])
 def check_in_hw(): # (setName, number):
+        # change returns to be availability
+        print('chkin')
         params = request.get_json()
         print(params)
         projID, amount, setName = params['projID'].strip(), params['amount'].strip(), params['setName'].strip()
@@ -144,26 +149,22 @@ def check_in_hw(): # (setName, number):
         amount=int(amount)
         db = Client['Projects']
         proj = db[projID]
-
         
-        chkout = proj.find_one({"projID": projID}, {"_id": 0, setName: 1})
+        chkout = proj.find_one({"_id": projID}, {"_id": 0, setName: 1})
         chkout = chkout[setName]
-        print(chkout)
         print(type(chkout))
+        print(chkout)
         if amount > chkout:
                 print('this is more than you have checked out, try again')
-                return jsonify(result = "False")
+                return jsonify(toomany = "False")
 
-        proj.update_one({"HWSet Name": setName}, {'$inc':{'Current Out': -amount}})
-        out_temp = proj.find_one({"HWSet Name": setName}, {"_id": 0, "Current Out": 1})
-        current_Out = out_temp["Current Out"]
-        if current_Out == 0:
-                print('all units of this set checked back in')
-                proj.find_one_and_delete({"HWSet Name": setName})
+        proj.update_one({"_id": projID}, {'$inc':{setName: -amount}})
         db = Client['HWSets']
         set = db[setName]
         set.update_one({"HWSet Name": setName}, {'$inc':{'Availability': amount}})
-        return jsonify(result = "True")
+        avail_temp = set.find_one({"HWSet Name": setName}, {"_id": 0, "Availability": 1})
+        avail = avail_temp["Availability"]
+        return jsonify(result = avail)
 
 # *********** for checking how global current_user works *******************************8
 @app.route("/sayHi", methods=["GET", "POST"])
@@ -308,6 +309,7 @@ def check_user_password():
                 current_user = username
         return jsonify({"result": username})
 
+@app.route('/logout', methods=["GET", "POST"])
 def log_out():
         # add tracker of checkouts to mass checkin upon logout
         global current_user

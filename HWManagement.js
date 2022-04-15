@@ -15,6 +15,7 @@ function HWManagement() {
   const [amount, setamount] = useState("");
   const [result, setresult] = useState("");
   const [availablity1, setavailablity1] = useState("");
+  
     function GetAvailablityHW1(){
       const requestOptions = {
         method: 'POST',
@@ -38,7 +39,7 @@ function HWManagement() {
     .then(response => response.json())
     .then(data => setavailablity1(data.result));
     // this.setState({email: val.currentTarget.value})
-    console.log(availablity)
+    console.log(availablity1)
     navigate("/HWManagement")       
 	  }
   function checkinHW1(){
@@ -49,7 +50,7 @@ function HWManagement() {
     };
     fetch("/HWManagement2", requestOptions)
     .then(response => response.json())
-    .then(data => setavailablity1(data.result));
+    .then(data => setavailablity(data.result));
     // this.setState({email: val.currentTarget.value})
     console.log(availablity)
     navigate("/HWManagement")
@@ -64,7 +65,7 @@ function HWManagement() {
     .then(response => response.json())
     .then(data => setavailablity1(data.result));
     // this.setState({email: val.currentTarget.value})
-    console.log(availablity)
+    console.log(availablity1)
     navigate("/HWManagement")
   }  
   function checkoutHW2(){
@@ -77,7 +78,7 @@ function HWManagement() {
     .then(response => response.json())
     .then(data => setavailablity1(data.result));
     // this.setState({email: val.currentTarget.value})
-    console.log(availablity)
+    console.log(availablity1)
     navigate("/HWManagement")
   }  
   function checkoutHW1(){
@@ -88,7 +89,7 @@ function HWManagement() {
     };
     fetch("/HWManagement1", requestOptions)
     .then(response => response.json())
-    .then(data => setavailablity1(data.result));
+    .then(data => setavailablity(data.result));
     // this.setState({email: val.currentTarget.value})
     console.log(availablity)
     navigate("/HWManagement")
