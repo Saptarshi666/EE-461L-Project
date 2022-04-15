@@ -10,6 +10,7 @@ import PopUp from "./Components/PopUp";
 import ProjPage from "./Components/ProjPage";
 import HWManagement from "./Components/HWManagement";
 import Datasets from "./Components/Datasets";
+import SetsDatas from "./Components/setdata";
 
 const rootElement = document.getElementById("root");
 render(
@@ -22,6 +23,7 @@ render(
         <Route path="newuser" element={<PopUp />} />
         <Route path="HWManagement" element={<HWManagement />} />
         <Route path="Datasets" element={<Datasets />} />
+        <Route path="SetsDatas" element={<SetsDatas />} />
       </Route>
     </Routes>
   </BrowserRouter>,
