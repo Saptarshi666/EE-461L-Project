@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 from cryptography.fernet import Fernet
 from flask import Flask, jsonify, session, request
 from flask.helpers import send_from_directory
-from flask_cors import CORS
+# from flask_cors import CORS
 # ajstiles caWpDYgtyCH0Z1JU
 # ^^user   ^^cluster password --> mongodb info
 # change next line if you testing with your own mongodb if you want to be able to see inside
@@ -32,7 +32,7 @@ current_user = ''
 project_id = ''
 auth = FALSE
 app = Flask(__name__, static_folder='./frontend/build', static_url_path="")
-CORS(app)
+# CORS(app)
 # fernet = Fernet.generate_key()
 fernet = b'dGbn-lNuJMHD7BAHzxzq-6Ji158xIxMHQlGrFXit7H0='
 f = Fernet(fernet)
@@ -490,4 +490,4 @@ add_physio_db('norwegian-athlete-ecg')
 # log_out()
 # Client.close()
 if __name__ == '__main__':
-    app.run()
+    app.run(host="0.0.0.0")
